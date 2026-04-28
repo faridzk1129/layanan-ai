@@ -15,7 +15,6 @@ import {
   MessageCircle,
   Menu,
   X,
-  History,
   MessageSquareOff,
 } from "lucide-react";
 
@@ -43,19 +42,12 @@ export default function ChatPage() {
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Fungsi untuk menyesuaikan tinggi textarea (Tambah & Kurang)
   useEffect(() => {
     if (textareaRef.current) {
-      // Reset tinggi ke auto agar scrollHeight dihitung ulang
       textareaRef.current.style.height = "auto";
-
       const isMobile = window.innerWidth < 640;
-      // Di mobile max height 80px (~2-3 baris), di desktop tetap 120px
       const maxHeight = isMobile ? 80 : 120;
-
       const nextHeight = Math.min(textareaRef.current.scrollHeight, maxHeight);
-
-      // Terapkan tinggi baru
       textareaRef.current.style.height = `${nextHeight}px`;
     }
   }, [inputText]);
@@ -69,7 +61,6 @@ export default function ChatPage() {
       }
     };
 
-    // Jalankan saat pertama kali mount
     handleResize();
 
     window.addEventListener("resize", handleResize);
