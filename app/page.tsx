@@ -57,6 +57,7 @@ export default function Home() {
     document.addEventListener("focusin", handleFocus);
     return () => document.removeEventListener("focusin", handleFocus);
   }, []);
+
   return (
     <main
       ref={containerRef}
@@ -188,8 +189,8 @@ export default function Home() {
             <div className="mt-8 pt-8 border-t border-slate-800 text-center">
               <p className="text-slate-500 text-sm">
                 Belum punya akun?{" "}
-                <a href="#" className="text-indigo-400 hover:text-indigo-300 font-semibold">
-                  Hubungi Admin
+                <a href="/register" className="text-indigo-400 hover:text-indigo-300 font-semibold">
+                  Buat akun
                 </a>
               </p>
             </div>
