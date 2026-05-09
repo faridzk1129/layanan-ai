@@ -1,15 +1,16 @@
 "use client";
-import { LockKeyhole, User, ArrowRight, Sparkles, Loader2 } from "lucide-react";
+import { LockKeyhole, Mail, ArrowRight, Sparkles, Loader2 } from "lucide-react";
 import BackgroundOrnament from "@/components/BackgroundOrnament";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { fetchApi } from "@/lib/api"; // {/* TAMBAHKAN */}
 
 export default function Home() {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
 
   // --- States ---
-  const [formData, setFormData] = useState({ username: "", password: "" });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -30,19 +31,26 @@ export default function Home() {
     setIsLoading(true);
     setError("");
 
-    // Simulasi delay network (nanti akan diganti dengan call ke Supabase)
-    setTimeout(() => {
-      if (formData.username === DEFAULT_USER && formData.password === DEFAULT_PASS) {
-        // Berhasil Login
-        router.push("/chatPage");
-      } else {
-        // Gagal Login
-        setError("Username atau password salah.");
-        setIsLoading(false);
-      }
-    }, 1200);
-  };
+    try {
+      const response = await fetchApi("/api/login", {
+        method: "POST",
+        body: JSON.stringify(formData),
+      });
 
+      // {/* PERUBAHAN: Cek properti 'success' sesuai struktur JSON Laravel Anda */}
+      if (response.success) {
+        localStorage.setItem("auth_token", response.data.token);
+        localStorage.setItem("user_data", JSON.stringify(response.data.user));
+
+        router.push("/chatPage");
+      }
+    } catch (err: any) {
+      // {/* PERUBAHAN: Menampilkan pesan error asli dari backend */}
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   useEffect(() => {
     const handleFocus = (e: any) => {
       const isMobile = window.innerWidth < 1024;
@@ -124,18 +132,18 @@ export default function Home() {
 
             <form className="space-y-5" onSubmit={handleLogin}>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300 ml-1">Username</label>
+                <label className="text-sm font-medium text-slate-300 ml-1">email</label>
                 <div className="relative group mt-2">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
-                    <User size={18} />
+                    <Mail size={18} />
                   </div>
                   <input
-                    name="username"
-                    type="text"
+                    name="email"
+                    type="email"
                     required
-                    value={formData.username}
+                    value={formData.email}
                     onChange={handleChange}
-                    placeholder="Masukkan username"
+                    placeholder="Masukkan Email"
                     className="w-full bg-slate-800/50 border border-slate-700 text-white rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all placeholder:text-slate-600"
                   />
                 </div>

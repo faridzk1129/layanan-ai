@@ -13,6 +13,7 @@ import BackgroundOrnament from "@/components/BackgroundOrnament";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { fetchApi } from "@/lib/api";
 
 export default function Register() {
   const router = useRouter();
@@ -57,50 +58,36 @@ export default function Register() {
     setIsLoading(true);
     setStatus({ type: null, msg: "" });
 
-    // Simulasi delay API
-    setTimeout(() => {
-      // 1. Validasi Field Kosong
-      if (
-        !formData.name ||
-        !formData.email ||
-        !formData.password ||
-        !formData.password_confirmation
-      ) {
-        setStatus({ type: "error", msg: "Semua field wajib diisi." });
-        setIsLoading(false);
-        return; // BERHENTI DI SINI
+    // 1. Validasi Client-Side (Tetap pertahankan validasi Anda)
+    if (formData.password !== formData.password_confirmation) {
+      setStatus({ type: "error", msg: "Konfirmasi password tidak cocok!" });
+      setIsLoading(false);
+      return;
+    }
+
+    // {/* PERUBAHAN: Integrasi API Laravel */}
+    try {
+      const response = await fetchApi("/api/register", {
+        method: "POST",
+        body: JSON.stringify(formData),
+      });
+
+      if (response.success) {
+        // Simpan token otomatis agar setelah register user langsung dianggap login
+        localStorage.setItem("auth_token", response.data.token);
+
+        setStatus({ type: "success", msg: "Registrasi berhasil! Mengalihkan..." });
+
+        setTimeout(() => {
+          router.push("/"); // Ganti ke chatPage jika ingin langsung login
+        }, 1500);
       }
-
-      // 2. Validasi Format Email
-      const emailRegex = /\S+@\S+\.\S+/;
-      if (!emailRegex.test(formData.email)) {
-        setStatus({ type: "error", msg: "Format email tidak valid." });
-        setIsLoading(false);
-        return; // BERHENTI DI SINI
-      }
-
-      // 3. Validasi Panjang Password
-      if (formData.password.length < 8) {
-        setStatus({ type: "error", msg: "Password minimal harus 8 karakter." });
-        setIsLoading(false);
-        return; // BERHENTI DI SINI
-      }
-
-      // 4. Validasi Kesamaan Password (Penyebab error Anda sebelumnya)
-      if (formData.password !== formData.password_confirmation) {
-        setStatus({ type: "error", msg: "Konfirmasi password tidak cocok!" });
-        setIsLoading(false);
-        return; // BERHENTI DI SINI
-      }
-
-      // 5. Jika lolos semua validasi di atas
-      setStatus({ type: "success", msg: "Registrasi berhasil! Mengalihkan..." });
-
-      // Redirect hanya jika benar-benar sukses
-      setTimeout(() => {
-        router.push("/");
-      }, 1500);
-    }, 1000);
+    } catch (err: any) {
+      setStatus({ type: "error", msg: err.message || "Gagal melakukan registrasi." });
+    } finally {
+      setIsLoading(false);
+    }
+    // {/* END PERUBAHAN */}
   };
 
   return (
