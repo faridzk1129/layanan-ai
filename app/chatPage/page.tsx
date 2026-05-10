@@ -493,10 +493,7 @@ export default function ChatPage() {
                 }
                 className="w-full bg-transparent border-none text-white p-3 sm:p-4 focus:outline-none resize-none placeholder:text-slate-600 text-sm sm:text-base custom-scrollbar-input"
               />
-              <div className="flex items-center justify-between px-2 pb-2">
-                <button className="p-2 text-slate-500 hover:text-indigo-400 transition-all">
-                  <ImageIcon size={18} />
-                </button>
+              <div className="flex justify-end px-2 pb-2">
                 <button
                   onClick={handleSend}
                   disabled={isSending || files.length === 0}
